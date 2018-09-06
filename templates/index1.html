@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Insert title here</title>
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+	 crossorigin="anonymous"></script>
+	<script src="https://github.com/ethereum/web3.js/blob/develop/dist/web3.min.js"></script>
+	<script type="text/javascript">
+		var ABI = [
+			{
+				"constant": true,
+				"inputs": [
+					{
+						"name": "owner",
+						"type": "address"
+					}
+				],
+				"name": "balanceOf",
+				"outputs": [
+					{
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"payable": false,
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"constant": true,
+				"inputs": [],
+				"name": "symbol",
+				"outputs": [
+					{
+						"name": "",
+						"type": "string"
+					}
+				],
+				"payable": false,
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"constant": false,
+				"inputs": [
+					{
+						"name": "_to",
+						"type": "address"
+					},
+					{
+						"name": "_value",
+						"type": "uint256"
+					}
+				],
+				"name": "transfer",
+				"outputs": [],
+				"payable": false,
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"name": "total_amount",
+						"type": "uint256"
+					}
+				],
+				"payable": false,
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"name": "from",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"name": "to",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"name": "vol",
+						"type": "uint256"
+					}
+				],
+				"name": "Transfer",
+				"type": "event"
+			}
+		];
+		var address = "0x2fcc786e56d4243457ad80198a7b116b0994b0fd";
+		$(function () {
+			if (typeof web3 !== 'undefined') {
+				web3 = new Web3(web3.currentProvider);
+			} else {
+				alert('메타마스크 준비하세여')
+			}
+			
+			//해당 계약 가져오기 
+			var contract = web3.eth.contract(ABI).at(address)
+			getAllEvents(contract)
+
+			//모든 이벤트를 가져옴
+			function getAllEvents(contract) {
+				contract.allEvents({
+					fromBlock: 0,
+					toBlock: 'latest'
+				}).get(
+					function (err, res) {
+						for (idx in res) {
+							alert(res[idx].args.from + '이 '
+								+ res[idx].args.to
+								+ '에게 ' + res[idx].args.val
+								+ 'SGC 송금ㅋ')
+						}
+					})
+			}
+			
+			//이벤트가 생성됬을시 호출
+			contract.Transfer().watch(function (err, res) {
+				alert('이벤트 발생!!!' + res.args.from + '이 '
+					+ res.args.to
+					+ '에게 ' + res.args.val
+					+ 'SGC 송금ㅋ')
+			})
+
+			//버튼클릭시 
+			$('#btn').on('click', function () {
+				var addr = $('#addr').val()
+				var val = $('#val').val()
+				contract.transfer(addr, val, function (err, res) {
+
+				})
+			})
+		})
+	</script>
+</head>
+
+<body>
+	<input id="addr" type="text">
+	<input id="val" type="text">
+	<input id="btn" type="button" value="송금">
+</body>
+
+</html>

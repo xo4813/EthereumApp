@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+        crossorigin="anonymous"></script>
+    <script src="https://github.com/ethereum/web3.js/blob/develop/dist/web3.min.js"></script>
+
+
+    <script type="text/javascript">
+        var ABI = [
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "name": "value",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "RejectedPaymentFromBlacklistedAddr",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "name": "target",
+                        "type": "address"
+                    }
+                ],
+                "name": "Blacklisted",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "name": "value",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "Transfer",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "name": "target",
+                        "type": "address"
+                    }
+                ],
+                "name": "DeleFromBlacklist",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "name": "value",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "RejectedPaymentToBlacklistedAddr",
+                "type": "event"
+            },
+            {
+                "constant": false,
+                "inputs": [
+                    {
+                        "name": "_addr",
+                        "type": "address"
+                    }
+                ],
+                "name": "blacklisting",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "constant": false,
+                "inputs": [
+                    {
+                        "name": "_addr",
+                        "type": "address"
+                    }
+                ],
+                "name": "deleteFromBlacklist",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "constant": false,
+                "inputs": [
+                    {
+                        "name": "_to",
+                        "type": "address"
+                    },
+                    {
+                        "name": "_value",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "transfer",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "name": "_supply",
+                        "type": "uint256"
+                    },
+                    {
+                        "name": "_name",
+                        "type": "string"
+                    },
+                    {
+                        "name": "_symbol",
+                        "type": "string"
+                    },
+                    {
+                        "name": "_decimals",
+                        "type": "uint8"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "constant": true,
+                "inputs": [
+                    {
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "balanceOf",
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [
+                    {
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "blackList",
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "int8"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "decimals",
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "uint8"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "name",
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "owner",
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "symbol",
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "totalSupply",
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ]
+        var address = "0x00a1cd33cc93ba6e508dfc01ebd97fc42588516c";
+        $(function () {
+            if (typeof web3 !== 'undefined') {
+                web3 = new Web3(web3.currentProvider);
+            } else {
+                alert('메타마스크 준비하세여')
+            }
+
+            //해당 계약 가져오기 
+            var contract = web3.eth.contract(ABI).at(address)
+            getAllEvents(contract)
+
+            //모든 이벤트를 가져옴
+            function getAllEvents(contract) {
+                contract.allEvents({
+                    fromBlock: 0,
+                    toBlock: 'latest'
+                }).get(
+                    function (err, res) {
+                        for (idx in res) {
+                            alert(res[idx].args.from + '이 '
+                                + res[idx].args.to
+                                + '에게 ' + res[idx].args.value
+                                + '원 송금')
+                        }
+                    })
+            }
+
+            //이벤트가 생성됬을시 호출
+            contract.Transfer().watch(function (err, res) {
+                alert('이벤트 발생!!!' + res.args.from + '이 '
+                    + res.args.to
+                    + '에게 ' + res.args.value
+                    + '원 송금')
+            })
+
+            //버튼클릭시 
+            $('#btn').on('click', function () {
+                var addr = $('#addr').val()
+                var val = $('#val').val()
+                contract.transfer(addr, val, function (err, res) {
+
+                })
+            })
+        })
+    </script>
+</head>
+
+<body>
+    <input id="addr" type="text">
+    <input id="val" type="text">
+    <input id="btn" type="button" value="송금">
+</body>
+
+</html>

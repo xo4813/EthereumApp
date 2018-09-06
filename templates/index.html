@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>SimpleStorage</title>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://github.com/ethereum/web3.js/blob/develop/dist/web3.min.js"></script>
+    <script type="text/javascript">
+
+        var contractAddr = '0x5156f4a6577523467a1c58dfec00613bb951e76d'
+        var CounterAdderssList
+
+        var masterABI = [
+            {
+                "constant": false,
+                "inputs": [
+                    {
+                        "name": "name",
+                        "type": "string"
+                    }
+                ],
+                "name": "addCounter",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "getCounterAddressList",
+                "outputs": [
+                    {
+                        "name": "counterAddressList",
+                        "type": "address[]"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ]
+
+        var ABI = [
+            {
+                "constant": false,
+                "inputs": [],
+                "name": "countUp",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "getCounterName",
+                "outputs": [
+                    {
+                        "name": "name",
+                        "type": "string"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "getNumberOfCounter",
+                "outputs": [
+                    {
+                        "name": "number",
+                        "type": "uint32"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "name": "name",
+                        "type": "string"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            }
+        ]
+
+        $(document).ready(function () {
+            if (typeof web3 !== 'undefined') {
+                web3 = new Web3(web3.currentProvider)
+            }
+            else {
+                alert('metamask를 준비하세요')
+                alert('없으면 수동으로 이더리움넷에 접속합니다.')
+                web3 = new Web3(Web3.providers.HttpProvider('이더리움 넷 주소'))
+                //doSomething
+            }
+
+            var master = web3.eth.contract(masterABI).at("0x5156f4a6577523467a1c58dfec00613bb951e76d");
+            var account = web3.eth.accounts[0]
+
+
+            master.getCounterAddressList(function (err, res) {
+                CounterAdderssList = res
+                init();
+            });
+
+
+            $('#get_btn').on('click', function () {
+                $('#address').text('주소: ' + account)
+
+                web3.eth.getBalance(account, function (err, res) {
+                    $('#balance').text('잔액: ' + res)
+                })
+
+                contract.get(function (err, res) {
+                    $('#get_value').text('현재값: ' + res)
+                })
+            })
+
+            $('#set_btn').on('click', function () {
+                var set_val = $('#set_value').val()
+                contract.set(set_val, function (err, res) {
+
+                })
+            })
+
+
+        })
+
+        function setUI(index,td1,td2) {
+            var Counter = web3.eth.contract(ABI).at(CounterAdderssList[index]);
+
+            Counter.getCounterName(function (err, res) {
+                td1.innerHTML =  res;
+            });
+
+            Counter.getNumberOfCounter(function (err, res) {
+                td2.innerHTML = res;
+            });
+        }
+
+        function init() {
+            //web3.eth.defaultAccount = user_name;
+            var table = document.getElementById('list');
+
+            for (var i = 0; i < CounterAdderssList.length; i++) {
+                //대상 후보자 계약 획득
+                //var Counter = web3.eth.contract(ABI).at(CounterAdderssList[i]);
+                var row = table.insertRow();
+                var td = row.insertCell(0);
+
+                var radioButton1 = document.createElement('input');
+                radioButton1.type = 'radio';
+                radioButton1.name = 'CounterAddress';
+                radioButton1.value = CounterAdderssList[i];
+                td.appendChild(radioButton1);
+                var td1 = row.insertCell(1);
+                var td2 = row.insertCell(2);
+         
+                setUI(i,td1,td2)
+            }
+        }
+
+        function refresh() {
+
+            //web3.eth.defaultAccount = user_name;
+
+            var table = document.getElementById('list');
+            for (var i = CounterAdderssList.length; i > 0; i--) {
+                table.deleteRow(i);
+            }
+
+            init();
+        }
+
+        function countUp() {
+            //web3.eth.defaultAccount = user_name;
+            var targetAddress;
+            var CounterList = document.getElementsByName("CounterAddress");
+            
+            for (i = 0; i < CounterList.length; i++) {
+                if (CounterList[i].checked) {
+                    targetAddress = CounterList[i].value;
+                }
+            }
+
+            var Counter = web3.eth.contract(ABI).at(targetAddress);
+
+            Counter.countUp(function(err,res){
+                
+            });
+        }
+    </script>
+</head>
+
+<body>
+    Hello World Welcome to Hell
+
+    <table id="list" border="1">
+        <tr>
+            <th></th>
+            <th>name</th>
+            <th>number of counter</th>
+        </tr>
+    </table>
+    <br />
+    <input type="button" value="countUp" onclick="countUp();" />
+    <br />
+    <input type="button" value="refresh" onclick="refresh();" />
+    <br>
+    <input id="get_btn" type="button" value="get">
+    <div id='address'>주소 :</div>
+    <div id='balance'>잔액 :</div>
+    <div id='get_value'>현재값 :</div>
+    <input id="set_value" type="text">
+    <input id="set_btn" type="button" value="set">
+</body>
+
+</html>
